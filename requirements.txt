@@ -1,0 +1,5 @@
+python-lambda
+requests
+boto3
+datetime
+us

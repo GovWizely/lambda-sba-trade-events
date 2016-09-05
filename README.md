@@ -1,0 +1,36 @@
+# SBA Trade Leads Lambda
+
+This project provides an AWS Lambda that creates a single JSON document from the RSS endpoint 
+at https://www.sba.gov/event-list/views/new_events_listing based on data from https://www.sba.gov/tools/events.
+It uploads that JSON file to a S3 bucket.
+
+## Prerequisites
+
+Follow instructions from [python-lambda](https://github.com/nficano/python-lambda) to ensure your basic development environment is ready,
+including:
+
+* Python
+* Pip
+* Virtualenv
+* Virtualenvwrapper
+* AWS credentials
+
+## Getting Started
+
+	git clone git@github.com:GovWizely/lambda-sba-trade-events.git
+	cd lambda-sba-trade-events
+	mkvirtualenv -r requirements.txt lambda-sba-trade-events
+
+## Configuration
+
+* Define AWS credentials in either `config.yaml` or in the [default] section of ~/.aws/credentials.
+* Edit `config.yaml` if you want to specify a different AWS region, role, and so on.
+* Make sure you do not commit the AWS credentials to version control
+
+## Invocation
+
+	lambda invoke -v
+ 
+## Deploy
+
+	lambda deploy

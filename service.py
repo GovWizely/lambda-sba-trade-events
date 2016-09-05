@@ -27,6 +27,9 @@ CONTACT_TAGS = ['contact_name', 'registration_phone', 'registration_email', 'age
 VENUE_TAGS = ['city', 'country', 'street', 'location_name', 'province', 'postal_code']
 
 s3 = boto3.resource('s3')
+s = requests.Session()
+s.mount('https://', MyAdapter())
+s.headers.update({'Accept': 'application/xml'})
 
 
 def handler(event, context):
@@ -42,9 +45,6 @@ def handler(event, context):
 
 def get_items():
     print "Fetching XML feed of items..."
-    s = requests.Session()
-    s.mount('https://', MyAdapter())
-    s.headers.update({'Accept': 'application/xml'})
     offset = INITIAL_OFFSET
     items = []
     while True:
@@ -58,8 +58,9 @@ def get_items():
 
 def is_valid(event):
     today = dt.date.today().strftime("%Y-%m-%d")
-    return event['start_date'] > today and event['event_cancelled'] != 'Has been canceled' and event['venues'][0][
-        'country']
+    country_exists = event['venues'][0]['country']
+    not_canceled = event['event_cancelled'] != 'Has been canceled'
+    return event['start_date'] > today and not_canceled and country_exists
 
 
 def get_page_of_items(s, url):

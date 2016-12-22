@@ -67,7 +67,7 @@ def get_page_of_items(s, url):
     response = s.get(url)
     root = ET.fromstring(response.text.encode('utf-8'))
     items = root.findall('./item')
-    print "Found %i items" % len(items)
+    print "Found {} items from url {}".format(len(items), url)
     return items
 
 
@@ -77,7 +77,10 @@ def get_event(item):
     event['contacts'] = get_contacts(item)
     event['venues'] = get_venues(item)
     if len(event['fee']) > 0:
-        event['fee'] = float(event['fee'])
+        try:
+            event['fee'] = float(event['fee'])
+        except ValueError:
+            event['fee'] = 0.0
     else:
         event['fee'] = 0.0
     return event

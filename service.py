@@ -19,7 +19,7 @@ class MyAdapter(HTTPAdapter):
                                        ssl_version=ssl.PROTOCOL_TLSv1)
 
 
-INITIAL_OFFSET = 800
+INITIAL_OFFSET = 1200
 LIMIT = 100
 XML_ENDPOINT = "https://www.sba.gov/event-list/views/new_events_listing?display_id=services_1&filters[event_topic][value]=6&limit={0}&offset={1}"
 TAGS = ['fee', 'body', 'event_cancelled', 'node_title', 'event_type', 'registration_website', 'event_date', 'time_zone']

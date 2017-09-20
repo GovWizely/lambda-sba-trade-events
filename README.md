@@ -19,7 +19,7 @@ including:
 
 	git clone git@github.com:GovWizely/lambda-sba-trade-events.git
 	cd lambda-sba-trade-events
-	mkvirtualenv -r requirements.txt lambda-sba-trade-events
+	mkvirtualenv -r requirements.txt sba-trade-events
 
 ## Configuration
 

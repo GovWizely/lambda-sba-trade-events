@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+import datetime as dt
 import json
 import ssl
 import xml.etree.ElementTree as ET
 
+import bleach
 import boto3
-import datetime as dt
 import requests
 import us
 from requests.adapters import HTTPAdapter
@@ -25,6 +26,7 @@ XML_ENDPOINT = "https://www.sba.gov/event-list/views/new_events_listing?display_
 TAGS = ['fee', 'body', 'event_cancelled', 'node_title', 'event_type', 'registration_website', 'event_date', 'time_zone']
 CONTACT_TAGS = ['contact_name', 'registration_phone', 'registration_email', 'agency']
 VENUE_TAGS = ['city', 'country', 'street', 'location_name', 'province', 'postal_code']
+TAGS_TO_SANITIZE = ['body', 'street']
 
 s3 = boto3.resource('s3')
 s = requests.Session()
@@ -110,6 +112,8 @@ def get_contact(item):
 def get_text(item, tag):
     inner_text = get_inner_text(item, tag)
     result_text = '{}'.format(inner_text)
+    if tag in TAGS_TO_SANITIZE:
+        result_text = bleach.clean(result_text, strip=True)
     return result_text
 
 

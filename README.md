@@ -1,4 +1,4 @@
-# SBA Trade Leads Lambda
+# SBA Trade Events Lambda
 
 This project provides an AWS Lambda that creates a single JSON document from the RSS endpoint 
 at https://www.sba.gov/event-list/views/new_events_listing based on data from https://www.sba.gov/tools/events.

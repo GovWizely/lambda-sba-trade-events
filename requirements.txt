@@ -1,7 +1,8 @@
-python-lambda
-requests
-boto3
-datetime
-us
-bleach
-pylint
+python-lambda==3.2.2
+requests==2.18.4
+boto3==1.4.4
+botocore==1.5.62
+datetime==4.2
+us==1.0.0
+bleach==2.1.3
+pylint==1.9.2

@@ -1,57 +1,57 @@
 # -*- coding: utf-8 -*-
+"""Creates a single JSON document from the RSS endpoint at
+https://www.sba.gov/event-list/views/new_events_listing based on data from
+https://www.sba.gov/tools/events. It uploads that JSON file to a S3 bucket. """
 import datetime as dt
 import json
-import ssl
 import xml.etree.ElementTree as ET
 
 import bleach
 import boto3
 import requests
 import us
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.poolmanager import PoolManager
-
-
-class MyAdapter(HTTPAdapter):
-    def init_poolmanager(self, connections, maxsize, block=False):
-        self.poolmanager = PoolManager(num_pools=connections,
-                                       maxsize=maxsize,
-                                       block=block,
-                                       ssl_version=ssl.PROTOCOL_TLSv1)
-
 
 INITIAL_OFFSET = 1200
 LIMIT = 100
-XML_ENDPOINT = "https://www.sba.gov/event-list/views/new_events_listing?display_id=services_1&filters[event_topic][value]=6&limit={0}&offset={1}"
-TAGS = ['fee', 'body', 'event_cancelled', 'node_title', 'event_type', 'registration_website', 'event_date', 'time_zone']
+XML_ENDPOINT = "https://www.sba.gov/event-list/views/new_events_listing?display_id=services_1" \
+               "&filters[event_topic][value]=6&limit={0}&offset={1}"
+TAGS = ['fee', 'body', 'event_cancelled', 'node_title', 'event_type', 'registration_website',
+        'event_date', 'time_zone']
 CONTACT_TAGS = ['contact_name', 'registration_phone', 'registration_email', 'agency']
 VENUE_TAGS = ['city', 'country', 'street', 'location_name', 'province', 'postal_code']
 TAGS_TO_SANITIZE = ['body', 'street']
 
-s3 = boto3.resource('s3')
-s = requests.Session()
-s.mount('https://', MyAdapter())
-s.headers.update({'Accept': 'application/xml'})
+S3_CLIENT = boto3.resource('s3')
+SESSION = requests.Session()
+SESSION.headers.update({'Accept': 'application/xml'})
 
 
 def handler(event, context):
+    """
+    Called by AWS Lambda service
+    :param event: unused
+    :param context: unused
+    :return: str result
+    """
+    # pylint: disable=unused-argument
     items = get_items()
     full_entries = [get_event(item) for item in items]
     entries = [item for item in full_entries if is_valid(item)]
-    if len(entries) > 0:
-        s3.Object('trade-events', 'sba.json').put(Body=json.dumps(entries), ContentType='application/json')
+    if entries:
+        S3_CLIENT.Object('trade-events', 'sba.json').put(Body=json.dumps(entries),
+                                                         ContentType='application/json')
         return "Uploaded sba.json file with %i trade events" % len(entries)
-    else:
-        return "No entries loaded from %s so there is no JSON file to upload" % XML_ENDPOINT
+    return "No entries loaded from %s so there is no JSON file to upload" % XML_ENDPOINT
 
 
 def get_items():
+    """Fetches `LIMIT` items at a time starting from `INITIAL_OFFSET` until there are no more"""
     print "Fetching XML feed of items..."
     offset = INITIAL_OFFSET
     items = []
     while True:
-        batch = get_page_of_items(s, XML_ENDPOINT.format(LIMIT, offset))
-        if len(batch) == 0:
+        batch = get_page_of_items(XML_ENDPOINT.format(LIMIT, offset))
+        if not batch:
             break
         items.extend(batch)
         offset += LIMIT
@@ -59,14 +59,22 @@ def get_items():
 
 
 def is_valid(event):
+    """Determines if event is valid or not.
+    :param event: The individual event from the XML feed
+    :return: bool
+    """
     today = dt.date.today().strftime("%Y-%m-%d")
     country_exists = event['venues'][0]['country']
     not_canceled = event['event_cancelled'] != 'Has been canceled'
     return event['start_date'] > today and not_canceled and country_exists
 
 
-def get_page_of_items(s, url):
-    response = s.get(url)
+def get_page_of_items(url):
+    """Gets one page of `LIMIT` items
+    :param url: The event-list URL with the appropriate offset
+    :return: list of items
+    """
+    response = SESSION.get(url)
     root = ET.fromstring(response.text.encode('utf-8'))
     items = root.findall('./item')
     print "Found {} items from url {}".format(len(items), url)
@@ -74,11 +82,16 @@ def get_page_of_items(s, url):
 
 
 def get_event(item):
+    """Extracts an event from an XML item
+    :param item: The XML item
+    :return: An event dict
+    """
     event = {tag: get_text(item, tag) for tag in TAGS}
-    event['start_date'], event['start_time'], sep, event['end_date'], event['end_time'] = event['event_date'].split()
+    event['start_date'], event['start_time'], _, event['end_date'], event['end_time'] = event[
+        'event_date'].split()
     event['contacts'] = get_contacts(item)
     event['venues'] = get_venues(item)
-    if len(event['fee']) > 0:
+    if event['fee']:
         try:
             event['fee'] = float(event['fee'])
         except ValueError:
@@ -89,27 +102,34 @@ def get_event(item):
 
 
 def get_venues(item):
-    return [get_venue(item)]
-
-
-def get_venue(item):
+    """Extracts venues from an item
+    :param item: The XML item
+    :return: list of venues
+    """
     venue = {tag: get_text(item, tag) for tag in VENUE_TAGS}
     unicode_state_name = unicode(venue['province'])
     if unicode_state_name:
         venue['province'] = us.states.lookup(unicode_state_name).abbr
-    return venue
+    return [venue]
 
 
 def get_contacts(item):
-    return [get_contact(item)]
+    """Extracts contacts from an item
 
-
-def get_contact(item):
+    :param item: The XML item
+    :return: list of contacts
+    """
     contact = {tag: get_text(item, tag) for tag in CONTACT_TAGS}
-    return contact
+    return [contact]
 
 
 def get_text(item, tag):
+    """Extracts sanitized inner text from specified field
+
+    :param item: The XML item
+    :param tag: The tag to extract and sanitize
+    :return: Result str
+    """
     inner_text = get_inner_text(item, tag)
     result_text = '{}'.format(inner_text)
     if tag in TAGS_TO_SANITIZE:
@@ -118,6 +138,12 @@ def get_text(item, tag):
 
 
 def get_inner_text(item, tag):
+    """Extracts inner text from specified field
+
+    :param item: The XML item
+    :param tag: The tag to extract inner text from
+    :return: Result str
+    """
     element = item.find(tag)
     try:
         element_text = element.text.encode('utf8')

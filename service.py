@@ -9,7 +9,6 @@ import xml.etree.ElementTree as ET
 import bleach
 import boto3
 import requests
-import us
 
 INITIAL_OFFSET = 1200
 LIMIT = 100
@@ -20,7 +19,21 @@ TAGS = ['fee', 'body', 'event_cancelled', 'node_title', 'event_type', 'registrat
 CONTACT_TAGS = ['contact_name', 'registration_phone', 'registration_email', 'agency']
 VENUE_TAGS = ['city', 'country', 'street', 'location_name', 'province', 'postal_code']
 TAGS_TO_SANITIZE = ['body', 'street']
-
+US_STATES = {'Mississippi': 'MS', 'Northern Mariana Islands': 'MP', 'Oklahoma': 'OK',
+             'Wyoming': 'WY', 'Minnesota': 'MN', 'Alaska': 'AK', 'American Samoa': 'AS',
+             'Arkansas': 'AR', 'New Mexico': 'NM', 'Indiana': 'IN', 'Maryland': 'MD',
+             'Louisiana': 'LA', 'Texas': 'TX', 'Tennessee': 'TN', 'Iowa': 'IA', 'Wisconsin': 'WI',
+             'Arizona': 'AZ', 'Michigan': 'MI', 'Kansas': 'KS', 'Utah': 'UT', 'Virginia': 'VA',
+             'Oregon': 'OR', 'Connecticut': 'CT', 'District of Columbia': 'DC',
+             'New Hampshire': 'NH', 'Idaho': 'ID', 'West Virginia': 'WV', 'South Carolina': 'SC',
+             'California': 'CA', 'Massachusetts': 'MA', 'Vermont': 'VT', 'Georgia': 'GA',
+             'North Dakota': 'ND', 'Pennsylvania': 'PA', 'Puerto Rico': 'PR', 'Florida': 'FL',
+             'Hawaii': 'HI', 'Kentucky': 'KY', 'Rhode Island': 'RI', 'Nebraska': 'NE',
+             'Missouri': 'MO', 'Ohio': 'OH', 'Alabama': 'AL', 'Illinois': 'IL',
+             'Virgin Islands': 'VI', 'South Dakota': 'SD', 'Colorado': 'CO', 'New Jersey': 'NJ',
+             'National': 'NA', 'Washington': 'WA', 'North Carolina': 'NC', 'Maine': 'ME',
+             'New York': 'NY', 'Montana': 'MT', 'Nevada': 'NV', 'Delaware': 'DE', 'Guam': 'GU',
+             'District Of Columbia': 'DC'}
 S3_CLIENT = boto3.resource('s3')
 SESSION = requests.Session()
 SESSION.headers.update({'Accept': 'application/xml'})
@@ -109,7 +122,8 @@ def get_venues(item):
     venue = {tag: get_text(item, tag) for tag in VENUE_TAGS}
     unicode_state_name = unicode(venue['province'])
     if unicode_state_name:
-        venue['province'] = us.states.lookup(unicode_state_name).abbr
+        print "Looking up state :{}:".format(unicode_state_name)
+        venue['province'] = US_STATES[unicode_state_name]
     return [venue]
 
 

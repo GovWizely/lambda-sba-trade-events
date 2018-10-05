@@ -55,8 +55,8 @@ def is_valid(event):
     """
     today = dt.date.today().strftime("%Y-%m-%d")
     country_exists = event['country']
-    not_canceled = event['event cancelled'] != 'Has been canceled'
-    return event['event date2 start'] > today and not_canceled and country_exists
+    not_canceled = event['event_cancelled'] != 'Has been canceled'
+    return event['event_date2_start'] > today and not_canceled and country_exists
 
 
 def get_page_of_items(url):
@@ -75,8 +75,11 @@ def get_event(event):
     :param event: The JSON item
     :return: An event dict
     """
+    for key in event.keys():
+        if ' ' in key:
+            event[key.replace(' ', '_')] = event.pop(key)
     event['start_date'], event['start_time'], _, event['end_date'], event['end_time'] = event[
-        'event date'].split()
+        'event_date'].split()
     if event['fee']:
         try:
             event['fee'] = float(event['fee'])

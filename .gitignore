@@ -1,3 +1,4 @@
 dist/
 service.pyc
 .idea
+.coverage

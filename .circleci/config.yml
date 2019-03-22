@@ -27,30 +27,23 @@ jobs:
             virtualenv ./venv
             . venv/bin/activate
             pip install -r requirements.txt
+
       - save_cache:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
+      - run: mkdir -p /tmp/test-results && mkdir -p /tmp/test-artifacts
+
       - run:
-          name: pylint
+          name: pylint and integration tests
           command: |
             . venv/bin/activate
             pylint service.py
-
-      - run:
-          name: integration tests
-          command: |
-            PYTHONPATH=. pytest test_service.py
-            --junitxml=/tmp/test-results/pytest.xml
-            --cov .
-            --cov-report=html:/tmp/test-artifacts/coverage
-            --cov-fail-under=91
+            pytest test_service.py --junitxml=/tmp/test-results/pytest.xml --cov . --cov-report=html:/tmp/test-artifacts/coverage --cov-fail-under=91
 
       - store_test_results:
-          path: test-results
-          destination: test-results
+          path: /tmp/test-results
 
       - store_artifacts:
-          path: test-reports
-          destination: test-reports
+          path: /tmp/test-reports

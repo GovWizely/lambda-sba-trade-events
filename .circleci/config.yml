@@ -40,7 +40,7 @@ jobs:
           command: |
             . venv/bin/activate
             pylint service.py
-            pytest test_service.py --junitxml=/tmp/test-results/pytest.xml --cov . --cov-report=html:/tmp/test-artifacts/coverage --cov-fail-under=91
+            pytest test_service.py --junitxml=/tmp/test-results/pytest.xml --cov . --cov-config .coveragerc --cov-report=html:/tmp/test-artifacts/coverage --cov-fail-under=91
 
       - store_test_results:
           path: /tmp/test-results

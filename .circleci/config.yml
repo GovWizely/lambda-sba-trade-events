@@ -33,7 +33,7 @@ jobs:
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       - run:
-          name: run tests
+          name: run linting and tests
           command: |
             . venv/bin/activate
             pylint service.py

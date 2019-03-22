@@ -23,16 +23,21 @@ def handler(event, context):
     :return: str result
     """
     # pylint: disable=unused-argument
-    items = get_items()
-    full_entries = [get_event(item) for item in items]
-    print "Found a total of {} events...".format(len(full_entries))
-    entries = [item for item in full_entries if is_valid(item)]
-    print "...of which {} were valid events".format(len(entries))
+    entries = get_entries()
     if entries:
         S3_CLIENT.Object('trade-events', 'sba.json').put(Body=json.dumps(entries),
                                                          ContentType='application/json')
         return "Uploaded sba.json file with %i trade events" % len(entries)
     return "No entries loaded from %s so there is no JSON file to upload" % JSON_ENDPOINT
+
+
+def get_entries():
+    items = get_items()
+    full_entries = [get_event(item) for item in items]
+    print "Found a total of {} events...".format(len(full_entries))
+    entries = [item for item in full_entries if is_valid(item)]
+    print "...of which {} were valid events".format(len(entries))
+    return entries
 
 
 def get_items():

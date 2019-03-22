@@ -32,6 +32,10 @@ def handler(event, context):
 
 
 def get_entries():
+    """Gets all valid entries from the JSON endpoint
+
+    :return: list of entries
+    """
     items = get_items()
     full_entries = [get_event(item) for item in items]
     print "Found a total of {} events...".format(len(full_entries))

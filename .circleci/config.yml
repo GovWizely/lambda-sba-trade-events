@@ -47,7 +47,7 @@ jobs:
             --cov-report=html:/tmp/test-artifacts/coverage
             --cov-fail-under=91
 
-     - store_test_results:
+      - store_test_results:
           path: test-results
           destination: test-results
 

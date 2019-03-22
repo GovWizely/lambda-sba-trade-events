@@ -41,7 +41,7 @@ jobs:
       - run:
           name: integration tests
           command: |
-            pytest test_service.py
+            PYTHONPATH=. pytest test_service.py
             --junitxml=/tmp/test-results/pytest.xml
             --cov .
             --cov-report=html:/tmp/test-artifacts/coverage

@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/GovWizely/lambda-sba-trade-events/tree/master.svg?style=svg)](https://circleci.com/gh/GovWizely/lambda-sba-trade-events/tree/master)
 # SBA Trade Events Lambda
 
 This project provides an AWS Lambda that creates a single JSON document from the JSON endpoint 

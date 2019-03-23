@@ -24,7 +24,8 @@ including:
 
 ## Configuration
 
-* Define AWS credentials in either `config.yaml` or in the [default] section of ~/.aws/credentials.
+* Define AWS credentials in either `config.yaml` or in the [default] section of ~/.aws/credentials. To use another profile, you can do something like `export AWS_DEFAULT_PROFILE=govwizely`.
+
 * Edit `config.yaml` if you want to specify a different AWS region, role, and so on.
 * Make sure you do not commit the AWS credentials to version control
 

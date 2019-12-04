@@ -10,5 +10,5 @@ def test_get_entries():
 
     """
     entries = get_entries()
-    assert len(entries) == 1078
+    assert len(entries) == 1101
     assert entries[0]['cost'] == '39.00'

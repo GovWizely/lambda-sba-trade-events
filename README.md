@@ -2,7 +2,8 @@
 # SBA Trade Events Lambda
 
 This project provides an AWS Lambda that creates a single JSON document from the JSON endpoint 
-at https://www.sba.gov/event-list/views/new_events_listing.
+at https://www.sba.gov/api/content/search/events.json that powers the search results page 
+at https://www.sba.gov/events/find/?dateRange=all&distance=200&pageNumber=1.
 It uploads that JSON file to a S3 bucket.
 
 ## Prerequisites
@@ -10,7 +11,7 @@ It uploads that JSON file to a S3 bucket.
 Follow instructions from [python-lambda](https://github.com/nficano/python-lambda) to ensure your basic development environment is ready,
 including:
 
-* Python
+* Python 2.7
 * Pip
 * Virtualenv
 * Virtualenvwrapper

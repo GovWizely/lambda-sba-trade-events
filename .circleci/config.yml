@@ -1,49 +1,64 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
-version: 2
+version: 2.1
+
+defaults: &defaults
+  parameters:
+    build_image:
+      type: string
+      default: circleci/python:3.7.3
+    python_version:
+      type: string
+      default: python3.7
+
+cache_key: &cache_key
+    v1-<< parameters.python_version >>-<< parameters.build_image >>-{{ checksum "requirements.txt" }}-{{ checksum "requirements-test.txt" }}
+
+docker_defaults: &docker_defaults
+  << parameters.build_image >>
+
 jobs:
-  build:
+  test:
+    <<: *defaults
     docker:
-      - image: circleci/python:2.7
-
-    working_directory: ~/repo
-
+      - image: *docker_defaults
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "requirements.txt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
+            - *cache_key
       - run:
           name: install dependencies
           command: |
-            mkdir -p ./venv
-            virtualenv ./venv
+            python3 -m venv venv
             . venv/bin/activate
-            pip install -r requirements.txt
-
+            pip install --upgrade pip
+            pip install -r requirements-test.txt
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
-
+          key: *cache_key
       - run: mkdir -p /tmp/test-results && mkdir -p /tmp/test-artifacts
-
       - run:
-          name: pylint and integration tests
+          name: run tests
           command: |
             . venv/bin/activate
-            pylint service.py
-            pytest test_service.py --junitxml=/tmp/test-results/pytest.xml --cov . --cov-config .coveragerc --cov-report=html:/tmp/test-artifacts/coverage --cov-fail-under=87
-
+            flake8
+            python -m pytest --disable-pytest-warnings --cov=. --cov-report=html:/tmp/test-artifacts/coverage --cov-fail-under=87 --junitxml=/tmp/test-results/pytest.xml
       - store_test_results:
           path: /tmp/test-results
-
       - store_artifacts:
           path: /tmp/test-artifacts
+
+workflows:
+  version: 2.1
+
+  py37:
+    jobs:
+      - test:
+          name: test_py37
+
+  py38:
+    jobs:
+      - test:
+          name: test_py38
+          build_image: circleci/python:3.8.1
+          python_version: python3.8

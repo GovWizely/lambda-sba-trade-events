@@ -35,7 +35,7 @@ def get_entries():
     :return: list of entries
     """
     items = get_items()
-    print "Found a total of {} events...".format(len(items))
+    print(f"Found a total of {len(items)} events...")
     return items
 
 
@@ -61,7 +61,7 @@ def get_page_of_items(url):
     response = requests.get(url)
     response_json = response.json()
     # leaving this in here to debug intermittent errors with CloudFront-backed endpoint
-    print response_json
+    print(response_json)
     items = response_json['items']
-    print "Found {} items from url {}".format(len(items), url)
+    print(f"Found {len(items)} items from url {url}")
     return items

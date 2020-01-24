@@ -3,7 +3,7 @@ region: us-east-1
 function_name: sba-trade-events
 handler: service.handler
 role: lambda_api
-runtime: python2.7
+runtime: python3.8
 description: Fetches SBA trade events, filters expired events, builds a single JSON document, and stores it in S3
 
 timeout: 600

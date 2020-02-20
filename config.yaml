@@ -6,5 +6,5 @@ role: lambda_api
 runtime: python3.8
 description: Fetches SBA trade events, filters expired events, builds a single JSON document, and stores it in S3
 
-timeout: 600
+timeout: 900
 memory_size: 256

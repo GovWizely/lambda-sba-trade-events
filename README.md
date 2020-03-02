@@ -1,5 +1,6 @@
 [![CircleCI](https://circleci.com/gh/GovWizely/lambda-sba-trade-events/tree/master.svg?style=svg)](https://circleci.com/gh/GovWizely/lambda-sba-trade-events/tree/master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/0d4ddc12190e5e2239e9/maintainability)](https://codeclimate.com/github/GovWizely/lambda-sba-trade-events/maintainability)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=GovWizely/lambda-sba-trade-events)](https://dependabot.com)
 
 # SBA Trade Events Lambda
 

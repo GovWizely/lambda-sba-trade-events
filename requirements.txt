@@ -1,3 +1,3 @@
-boto3==1.17.7
+boto3==1.17.33
 python-lambda==11.8.0
 requests==2.25.1
